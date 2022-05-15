@@ -1,0 +1,73 @@
+{
+  "name": "template-node-egg",
+  "version": "1.0.0",
+  "description": "基于 Egg.js 的后端脚手架。",
+  "private": true,
+  "egg": {
+    "declarations": true
+  },
+  "scripts": {
+    "start": "egg-scripts start --daemon --title=template-node-egg",
+    "stop": "egg-scripts stop --title=template-node-egg",
+    "start:test": "cross-env EGG_SERVER_ENV=test egg-scripts start --daemon --title=template-node-egg-test",
+    "stop:test": "cross-env EGG_SERVER_ENV=test egg-scripts stop --title=template-node-egg-test",
+    "dev": "cross-env EGG_SERVER_ENV=local egg-bin dev",
+    "debug": "egg-bin debug",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "egg": "^2.33.1",
+    "egg-cors": "^2.2.3",
+    "egg-router-plus": "^2.0.0",
+    "egg-scripts": "^2.15.2",
+    "egg-sequelize": "^6.0.0",
+    "egg-swagger-doc": "^2.3.2",
+    "egg-validate": "^2.0.2",
+    "egg-validate-plus": "^1.1.6",
+    "moment": "^2.29.1",
+    "mysql2": "^2.3.3",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "autod": "^3.1.1",
+    "autod-egg": "^1.1.0",
+    "egg-bin": "^4.16.4",
+    "egg-ci": "^1.19.0",
+    "egg-mock": "^4.2.0",
+    "eslint": "^8.5.0",
+    "eslint-config-egg": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/wytxer/template-node-egg/#readme",
+  "keywords": [
+    "web",
+    "app",
+    "http",
+    "application",
+    "framework",
+    "middleware",
+    "koa",
+    "egg",
+    "template"
+  ],
+  "author": {
+    "name": "wytxer",
+    "url": "https://github.com/wytxer"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wytxer/template-node-egg.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wytxer/template-node-egg/issues"
+  }
+}
