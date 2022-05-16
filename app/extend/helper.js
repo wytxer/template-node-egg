@@ -12,58 +12,32 @@ const version = [ 1, 0, 0 ]
 
 module.exports = {
   /**
-   * 将菜单拆解成顶层的一级菜单和根据 parentId 进行分类好的子菜单
+   * 组装菜单树
    * @param {array} data 菜单列表
+   * @param {array} parentId 菜单所属的父级
    * @return {array} 组装好的菜单树
    */
-  treeMenu(data) {
+  toTreeData(data, parentId = 0) {
     if (data.length <= 0) {
       return []
     }
-    // 最终要返回的菜单列表
-    const menus = []
-    // 所有的子菜单
-    const children = {}
-    data.forEach(menu => {
-      delete menu.createdAt
-      delete menu.updatedAt
-      if (menu.meta) {
-        menu.meta = JSON.parse(menu.meta)
+    function traverse(id) {
+      const res = []
+      const items = data.filter(item => item.parentId === id)
+      if (items.length <= 0) {
+        return null
       }
-      // 取出顶层菜单
-      if (menu.parentId === 0 && !menus.find(m => m.id === menu.id)) {
-        menus.push(menu)
-      } else {
-        // 初始化子菜单列表
-        if (!children[menu.parentId]) {
-          children[menu.parentId] = []
+      items.forEach(item => {
+        delete item.createdAt
+        delete item.updatedAt
+        if (item.meta) {
+          item.meta = JSON.parse(item.meta)
         }
-        // 如果当前子菜单在列表里面的话添加进去
-        if (!children[menu.parentId].find(child => child.id === menu.id)) {
-          children[menu.parentId].push(menu)
-        }
-      }
-    })
-    // 递归把子菜单挂载到 menus 上
-    const treeMenu = () => {
-      let currentChildren = []
-      if (Object.keys(children).length <= 0) {
-        return
-      }
-      menus.forEach(item => {
-        if (children[item.id]) {
-          item.children = item.children || []
-          item.children = children[item.id]
-          currentChildren = currentChildren.concat(children[item.id])
-          delete children[item.id]
-        }
+        res.push({ ...item, children: traverse(item.id) })
       })
-      if (currentChildren.length) {
-        treeMenu(currentChildren, children)
-      }
+      return res
     }
-    treeMenu()
-    return menus
+    return traverse(parentId)
   },
   /**
    * 生成 uid
@@ -82,8 +56,8 @@ module.exports = {
    * @return {*} 返回解密后的数据
    */
   wechatCrypt({ appId, sessionKey, encryptedData, iv }) {
-    const pc = new WechatCrypt(appId, sessionKey)
-    return pc.decryptData(encryptedData, iv)
+    const res = new WechatCrypt(appId, sessionKey)
+    return res.decryptData(encryptedData, iv)
   },
   /**
    * 判断版本号是否大于指定版本
