@@ -8,60 +8,54 @@ const attributes = [ 'id', 'openId', 'nickName', 'avatarUrl', 'phone', 'loggedAt
 
 class UserService extends Service {
   // 登录
-  async login(openId, defaults) {
+  async login(openId, values) {
     const { model } = this.ctx
-    // 找到了返回当前用户信息否则新增一个用户
-    return await model.User.findOrCreate({
-      defaults,
+
+    return await model.User.findOne({
       where: { openId },
       attributes
     })
-      .then(async ([ user, created ]) => {
+      .then(async res => {
         const loggedAt = moment().format('YYYY-MM-DD HH:mm:ss')
-        // 如果记录已存在
-        if (created) {
-          await user.update({
-            loggedAt
-          })
-        } else { // 否则只是更新一下登录时间
-          defaults.loggedAt = loggedAt
-          await user.update(defaults)
+        if (res) {
+          return await res.update({ loggedAt })
         }
-        return user
+        values.loggedAt = loggedAt
+        return await model.User.create(values)
       })
-      .then(res => res?.toJSON() || res)
+      .then(res => res.toJSON())
   }
 
   // 保存手机号码
   async savePhone(id, phone) {
     const { model } = this.ctx
+
     return await model.User.findOne({
       where: { id }
     })
       .then(async res => {
-        if (res) await res.update({ phone })
-        return res
+        if (res) return await res.update({ phone })
+        return false
       })
   }
 
   // 获取用户信息
   async info(id) {
     const { model } = this.ctx
+
     return await model.User.findOne({
-      where: { id }
+      where: { id },
+      attributes
     })
       .then(async res => {
         if (res) {
           // 更新登录时间
-          await res.update({
+          return await res.update({
             loggedAt: moment().format('YYYY-MM-DD HH:mm:ss')
           })
+            .then(res => res.toJSON())
         }
-        // 这里重新查询一次，否则 loggedAt 和 updatedAt 字段返回的还是没有格式化的（上面的更新操作影响的）
-        return await model.User.findOne({
-          where: { id },
-          attributes
-        })
+        return false
       })
   }
 }

@@ -49,17 +49,11 @@ module.exports = app => {
   const apiPrefixName = 'api'
   // 接口完整前缀
   const apiPrefix = `/${apiPrefixName}`
-  // 后台接口前缀，跟随业务系统修改
-  const manageApiPrefixName = 'manage'
-  // 后台接口前缀
-  const manageApiPrefix = `/${manageApiPrefixName}`
   const userConfig = {
     // 应用名称，用于日志文件目录指定、cookie 的 key 指定，具有唯一性，默认是 app.name，也可以改成其他字符串
     appName: app.name,
     apiPrefixName,
     apiPrefix,
-    manageApiPrefixName,
-    manageApiPrefix,
     // 默认的 code 码和错误提示信息配置，只需要改这一个地方即可
     resCode: {
       // 服务器异常的 code 标识和提示，一般都不需要改
@@ -79,17 +73,10 @@ module.exports = app => {
   // 默认的 cookie 失效时间配置
   config.session = {
     key: `_${userConfig.appName}_${apiPrefixName}_`,
-    maxAge: 24 * 3600 * 1000 * 30, // 30 天
+    // 3 天
+    maxAge: 24 * 3600 * 1000 * 3,
     httpOnly: true,
     encrypt: true
-  }
-  // 内置后台管理 cookie 失效时间配置，不需要可以删除，实际上不删除也不会影响
-  config.manageSession = {
-    key: `_${userConfig.appName}_${manageApiPrefixName}_`,
-    maxAge: 24 * 3600 * 1000 * 30, // 30 天
-    httpOnly: true,
-    encrypt: true,
-    signed: false
   }
 
   /**
