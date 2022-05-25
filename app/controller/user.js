@@ -15,6 +15,7 @@ class UserController extends Controller {
    */
   async mock() {
     const { ctx } = this
+    const { service, helper, session } = ctx
     const { id } = ctx.request.query
     // 参数校验
     const rules = {
@@ -23,12 +24,12 @@ class UserController extends Controller {
     const passed = await ctx.validate(rules, ctx.request.query)
     if (!passed) return
 
-    const data = await ctx.service.user.info(id)
+    const data = await service.user.info(id)
     if (data) {
-      ctx.session.id = data.id
+      session.id = data.id
       ctx.rotateCsrfSecret()
     }
-    ctx.helper.success(data)
+    helper.success(data)
   }
 
   /**
@@ -40,6 +41,7 @@ class UserController extends Controller {
    */
   async login() {
     const { ctx } = this
+    const { service, helper, session } = ctx
     const { code, nickName, avatarUrl, phone, gender, province, city, language } = ctx.request.body
 
     // 参数校验
@@ -52,24 +54,25 @@ class UserController extends Controller {
     if (!passed) return
 
     // 微信登录凭证校验，通过 code 换取用户信息，包含 openId 和 unionId
-    const token = await ctx.service.wechatApp.code2Session(code)
+    const token = await service.wechatApp.code2Session(code)
     if (!token) {
-      ctx.helper.error(null, '微信登录鉴权失败')
+      helper.error(null, '微信登录鉴权失败')
       return
     }
 
     const { openId, unionId, sessionKey } = token
     // 更新用户信息
-    const data = await ctx.service.user.login(openId, {
+    const data = await service.user.login(openId, {
       openId, unionId, nickName, avatarUrl, phone, gender, province, city, language
     })
     if (data) {
-      ctx.session.id = data.id
+      session.id = data.id
       data.sessionKey = sessionKey
       delete data.unionId
-      ctx.helper.success(data)
+      delete data.password
+      helper.success(data)
     } else {
-      ctx.helper.error(null, '授权出现未知错误')
+      helper.error(null, '授权出现未知错误')
     }
   }
 
@@ -81,6 +84,7 @@ class UserController extends Controller {
    */
   async phone() {
     const { ctx } = this
+    const { service, helper, app, logger } = ctx
     const { sessionKey, userId, iv, encryptedData } = ctx.request.body
 
     // 参数校验
@@ -95,27 +99,27 @@ class UserController extends Controller {
     // const passed = await ctx.validate(ctx.rule.phone, ctx.request.body)
     if (!passed) return
 
-    const { appId } = ctx.app.config.wxapp
+    const { appId } = app.config.wxapp
     // 解密后的手机号码数据
     let phoneData = null
     try {
-      phoneData = ctx.helper.wechatCrypt({ appId, sessionKey, iv, encryptedData })
+      phoneData = helper.wechatCrypt({ appId, sessionKey, iv, encryptedData })
     } catch (error) {
-      ctx.logger.error(error)
-      ctx.helper.error(null, '手机号码解密失败')
+      logger.error(error)
+      helper.error(null, '手机号码解密失败')
       return
     }
 
     if (phoneData) {
       // 完整的用户数据
-      const data = await ctx.service.user.savePhone(userId, phoneData.phoneNumber)
+      const data = await service.user.savePhone(userId, phoneData.phoneNumber)
       if (data) {
-        ctx.helper.success(data)
+        helper.success(data)
       } else {
-        ctx.helper.error(null, '手机号码保存失败')
+        helper.error(null, '手机号码保存失败')
       }
     } else {
-      ctx.helper.error(null, '手机号码获取失败')
+      helper.error(null, '手机号码获取失败')
     }
   }
 
@@ -127,11 +131,12 @@ class UserController extends Controller {
    */
   async info() {
     const { ctx } = this
-    const data = await ctx.service.user.info(ctx.session.id)
+    const { service, helper, session } = ctx
+    const data = await service.user.info(session.id)
     if (data) {
-      ctx.helper.success(data)
+      helper.success(data)
     } else {
-      ctx.helper.error(null, '用户信息获取失败')
+      helper.error(null, '用户信息获取失败')
     }
   }
 
@@ -141,9 +146,9 @@ class UserController extends Controller {
    * @router get /user/logout
    */
   async logout() {
-    const { ctx } = this
-    ctx.session.id = null
-    ctx.helper.success()
+    const { helper, session } = this.ctx
+    session.id = null
+    helper.success()
   }
 }
 
