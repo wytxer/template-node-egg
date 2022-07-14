@@ -73,8 +73,8 @@ module.exports = app => {
   // 默认的 cookie 失效时间配置
   config.session = {
     key: `_${userConfig.appName}_${apiPrefixName}_`,
-    // 3 天
-    maxAge: 24 * 3600 * 1000 * 3,
+    // 7 天
+    maxAge: 24 * 3600 * 1000 * 7,
     httpOnly: true,
     encrypt: true
   }

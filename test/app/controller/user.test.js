@@ -15,7 +15,7 @@ describe('test/app/controller/user.test.js', () => {
 
   it('获取用户信息', () => {
     return app.httpRequest()
-      .post('/api/v1/user/info')
+      .get('/api/v1/user/info')
       .type('json')
       .expect(200)
       .expect(res => {
