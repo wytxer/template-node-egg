@@ -19,14 +19,14 @@ module.exports = app => {
    */
   // 本地环境和测试环境下开放 mock 登录，方便开发和调试
   if (isDev) {
-    subRouter.get('/user/mock', controller.user.mock)
+    subRouter.get('/v1/user/mock', controller.user.mock)
   }
   // 登录
-  subRouter.post('/user/login', controller.user.login)
+  subRouter.post('/v1/user/login', controller.user.login)
   // 获取用户信息
-  subRouter.all('/user/info', controller.user.info)
+  subRouter.all('/v1/user/info', controller.user.info)
   // 登出
-  subRouter.all('/user/logout', controller.user.logout)
+  subRouter.all('/v1/user/logout', controller.user.logout)
   // 通过授权获取用户手机号码，微信小程序专用
-  subRouter.post('/user/phone', controller.user.phone)
+  subRouter.post('/v1/user/phone', controller.user.phone)
 }

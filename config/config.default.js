@@ -111,10 +111,10 @@ module.exports = app => {
   config.permission = {
     // 接口白名单配置
     whiteUrls: [
-      `${apiPrefix}/user/mock`,
-      `${apiPrefix}/user/login`,
-      `${apiPrefix}/user/logout`,
-      `${apiPrefix}/user/phone`
+      `${apiPrefix}/v1/user/mock`,
+      `${apiPrefix}/v1/user/login`,
+      `${apiPrefix}/v1/user/logout`,
+      `${apiPrefix}/v1/user/phone`
     ]
   }
 
