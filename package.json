@@ -7,11 +7,11 @@
     "declarations": true
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=template-node-egg",
-    "stop": "egg-scripts stop --title=template-node-egg",
-    "start:test": "npx cross-env cross-env EGG_SERVER_ENV=test egg-scripts start --daemon --title=template-node-egg-test",
-    "stop:test": "npx cross-env cross-env EGG_SERVER_ENV=test egg-scripts stop --title=template-node-egg-test",
-    "dev": "npx cross-env cross-env EGG_SERVER_ENV=local egg-bin dev",
+    "start": "egg-scripts start --daemon --title=template-node-egg --port=7002",
+    "stop": "egg-scripts stop --title=template-node-egg --port=7002",
+    "start:test": "npx cross-env cross-env EGG_SERVER_ENV=test egg-scripts start --daemon --title=template-node-egg-test --port=7001",
+    "stop:test": "npx cross-env cross-env EGG_SERVER_ENV=test egg-scripts stop --title=template-node-egg-test --port=7001",
+    "dev": "npx cross-env cross-env EGG_SERVER_ENV=local egg-bin dev --port=7001",
     "debug": "egg-bin debug",
     "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "egg-bin test",
