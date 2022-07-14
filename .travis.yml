@@ -1,7 +1,9 @@
 
 language: node_js
 node_js:
-  - '16'
+  - '8'
+  - '10'
+  - '12'
 before_install:
   - npm i npminstall -g
 install:
