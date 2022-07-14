@@ -9,9 +9,9 @@
   "scripts": {
     "start": "egg-scripts start --daemon --title=template-node-egg",
     "stop": "egg-scripts stop --title=template-node-egg",
-    "start:test": "cross-env EGG_SERVER_ENV=test egg-scripts start --daemon --title=template-node-egg-test",
-    "stop:test": "cross-env EGG_SERVER_ENV=test egg-scripts stop --title=template-node-egg-test",
-    "dev": "cross-env EGG_SERVER_ENV=local egg-bin dev",
+    "start:test": "npx cross-env cross-env EGG_SERVER_ENV=test egg-scripts start --daemon --title=template-node-egg-test",
+    "stop:test": "npx cross-env cross-env EGG_SERVER_ENV=test egg-scripts stop --title=template-node-egg-test",
+    "dev": "npx cross-env cross-env EGG_SERVER_ENV=local egg-bin dev",
     "debug": "egg-bin debug",
     "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "egg-bin test",
