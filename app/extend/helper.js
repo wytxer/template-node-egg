@@ -66,6 +66,8 @@ module.exports = {
    * @return {number} 对比结果，1：当前版本大于指定版本，0：当前版本等于指定版本，-1：当前版本小于指定版本
    */
   thanVersion(v1, v2) {
+    // 如果没有当前版本号，直接返回
+    if (!v1) return 0
     v1 = v1.split('.')
     // 如果没传递目标版本号，则默认使用内置的版本号
     v2 = v2 ? v2.split('.') : version
