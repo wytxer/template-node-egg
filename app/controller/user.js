@@ -11,30 +11,30 @@ class UserController extends Controller {
    * @summary 模拟登录
    * @description 通过 mock 的方式登录
    * @router get /v1/user/mock
-   * @request query string *id 用户 id
+   * @request query string *userId 用户 id
    * @response 0 UserInfo
    */
   async mock() {
-    const { ctx } = this
-    const { service, helper, session } = ctx
-    const { id } = ctx.request.query
+    const { service, request, validate, session, rotateCsrfSecret, helper } = this.ctx
+    const { userId } = request.query
 
     // 参数校验
     const rules = {
-      id: { required: true, message: '用户标识不能为空' }
+      userId: { required: true, message: '用户标识不能为空' }
     }
-    const passed = await ctx.validate(rules, ctx.request.query)
+    const passed = await validate.call(this, rules, request.query)
     if (!passed) return
 
-    const data = await service.user.info(id)
+    const data = await service.user.info(userId)
     if (data) {
-      session.id = data.id
+      session.userId = data.id
       session.openId = data.openId
-      session.unionId = data.unionId
       session.nickName = data.nickName
-      ctx.rotateCsrfSecret()
+      rotateCsrfSecret.call(this)
+      helper.success(data)
+    } else {
+      helper.error(null, '用户不存在')
     }
-    helper.success(data)
   }
 
   /**
@@ -45,17 +45,11 @@ class UserController extends Controller {
    * @response 0 UserInfo
    */
   async login() {
-    const { ctx } = this
-    const { service, helper, session } = ctx
-    const { code, nickName, avatarUrl, phone, gender, province, city, language } = ctx.request.body
+    const { service, helper, session, request, validate, rotateCsrfSecret, rule } = this.ctx
+    const { code, nickName, avatarUrl, phone, gender, province, city, language } = request.body
 
     // 参数校验
-    const rules = {
-      code: { required: true, message: '临时登录凭证不能为空' },
-      nickName: { required: true, message: '昵称不能为空' },
-      avatarUrl: { required: true, message: '用户头像不能为空' }
-    }
-    const passed = await ctx.validate(rules, ctx.request.body)
+    const passed = await validate.call(this, rule.RequestLogin, request.body)
     if (!passed) return
 
     // 微信登录凭证校验，通过 code 换取用户信息，包含 openId 和 unionId
@@ -65,17 +59,15 @@ class UserController extends Controller {
       return
     }
 
-    const { openId, unionId, sessionKey } = token
-    // 更新用户信息
+    const { openId, unionId } = token
     const data = await service.user.login({
       openId, unionId, nickName, avatarUrl, phone, gender, province, city, language
     })
     if (data) {
-      session.id = data.id
+      session.userId = data.id
       session.openId = data.openId
-      session.unionId = data.unionId
       session.nickName = data.nickName
-      session.sessionKey = sessionKey
+      rotateCsrfSecret.call(this)
       delete data.unionId
       delete data.password
       helper.success(data)
@@ -92,36 +84,25 @@ class UserController extends Controller {
    * @response 0 UserInfo
    */
   async phone() {
-    const { ctx } = this
-    const { service, helper, app, logger } = ctx
-    const { userId, iv, encryptedData } = ctx.request.body
-    const sessionKey = ctx.session.sessionKey
+    const { service, helper, session, request, validate, rule } = this.ctx
+    const { userId, code } = request.body
 
     // 参数校验（复用 egg-swagger-doc 结构来校验）
-    const passed = await ctx.validate(ctx.rule.RequestPhone, ctx.request.body)
+    const passed = await validate.call(this, rule.RequestPhone, request.body)
     if (!passed) return
 
-    const { appId } = app.config.wxapp
-    // 解密后的手机号码数据
-    let phoneInfo = null
-    try {
-      phoneInfo = helper.wechatCrypt({ appId, sessionKey, iv, encryptedData })
-    } catch (error) {
-      logger.error(error)
-      helper.error(null, '手机号码解密失败')
-      return
-    }
-
-    if (phoneInfo) {
-      // 完整的用户数据
-      const data = await service.user.savePhone(userId, phoneInfo.phoneNumber)
+    const token = await service.wechatApp.accessToken()
+    const phoneData = await service.wechatApp.getPhoneNumber(token.accessToken, code)
+    if (phoneData) {
+      // 保存手机号
+      const data = await service.user.savePhone(userId, phoneData.phoneNumber, session.openId)
       if (data) {
-        helper.success(data)
+        helper.success()
       } else {
-        helper.error(null, '手机号码保存失败')
+        helper.error(null, '手机号保存失败')
       }
     } else {
-      helper.error(null, '手机号码获取失败')
+      helper.error(null, '手机号授权异常')
     }
   }
 
@@ -132,9 +113,8 @@ class UserController extends Controller {
    * @response 0 UserInfo
    */
   async info() {
-    const { ctx } = this
-    const { service, helper, session } = ctx
-    const data = await service.user.info(session.id)
+    const { service, helper, session } = this.ctx
+    const data = await service.user.info(session.userId)
     if (data) {
       helper.success(data)
     } else {
@@ -150,9 +130,8 @@ class UserController extends Controller {
    */
   async logout() {
     const { helper, session } = this.ctx
-    session.id = null
+    session.userId = null
     session.openId = null
-    session.unionId = null
     session.nickName = null
     helper.success()
   }
