@@ -108,14 +108,6 @@ module.exports = {
     return JSON.parse(data)
   },
   /**
-   * 简单的数据拷贝
-   * @param {*} data 数据源
-   * @return {*} 拷贝后的数据
-   */
-  clone(data) {
-    return JSON.parse(JSON.stringify(data))
-  },
-  /**
    * 获取本机 IP 地址
    * @return {string} IP 地址
    */

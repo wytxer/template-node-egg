@@ -14,7 +14,7 @@ module.exports = (options, app) => {
       await next()
     } else {
       const { config } = ctx.app
-      if (!ctx.session.id && ctx.url.match(new RegExp(`^${config.apiPrefix}`))) {
+      if (!ctx.session.userId && ctx.url.match(new RegExp(`^${config.apiPrefix}`))) {
         ctx.helper.notLogged()
       } else {
         await next()

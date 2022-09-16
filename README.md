@@ -10,13 +10,13 @@
 yarn install
 
 # 启动开发
-yarn dev
+yarn run dev
 
 # 生产环境启动
-yarn start
+yarn run start
 
 # 生产环境停止
-yarn stop
+yarn run stop
 ```
 
 
