@@ -5,7 +5,7 @@ const { app, assert } = require('egg-mock/bootstrap')
 describe('test/app/controller/user.test.js', () => {
   it('mock 登录', () => {
     return app.httpRequest()
-      .get('/api/v1/user/mock?id=1000')
+      .get('/api/v1/user/mock?userId=1000')
       .type('json')
       .expect(200)
       .expect(res => {
