@@ -153,7 +153,7 @@ module.exports = app => {
    * 小程序平台相关配置，可往下新增头条小程序、百度小程序、钉钉小程序等相关配置
    */
   // 微信小程序配置
-  config.wxapp = {
+  config.wechatApp = {
     appId: '',
     secret: ''
   }
